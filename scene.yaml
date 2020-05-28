@@ -36,7 +36,7 @@ fonts:
 
 scene:
     background:
-        color: [0.950,0.950,0.950]
+        color: [0.500,0.495,0.497]
 
 sources:
     # mapzen:
@@ -73,55 +73,55 @@ layers:
         data: { source: mapzen, layer: earth }
         draw:
             polygons:
-                style: stripes-noise
+                style: earth-stripes-noise
                 order: global.feature_order
-                color: [0.500,0.500,0.500]
+                color: [0.460,0.231,0.133]
 
     water:
         data: { source: mapzen, layer: water }
         draw:
             polygons:
-                # style: waves-black
-                # style: waves-white
-                style: waves-noise
-                # style: waves-noise-animate
-                color: [0.700,0.700,0.700]
+                style: waves-stripes-noise
+                color: [0.000,0.496,0.850]
                 order: global.feature_order
 
         lakes:
             filter:
                 all:
                     - kind: [ocean, lake, water, riverbank, reservoir, swimming_pool]
-                any:
-                    # limit show smaller landuse areas to higher zooms
-                    - { $zoom: [1],  area: { min: 10000000000 } }
-                    - { $zoom: [2],  area: { min: 7000000000 } }
-                    # some weird natural earth scale set transition
-                    - { $zoom: [3],  area: { min: 5000000000 } }
-                    - { $zoom: [4],  area: { min: 300000000 } }
-                    - { $zoom: [5],  area: { min: 50000000 } }
-                    - { $zoom: [6],  area: { min: 50000000 } }
-                    - { $zoom: [7],  area: { min: 50000000 } }
-                    - { $zoom: [8],  area: { min: 50000000 } }
-                    - { $zoom: [9],  area: { min: 15000000 } }
-                    - { $zoom: [10], area: { min: 4000000 } }
-                    - { $zoom: [11], area: { min: 1000000 } }
-                    - { $zoom: [12], area: { min: 250000 } }
-                    - { $zoom: [13], area: { min: 150000 } }
-                    - { $zoom: [14], area: { min: 40000 } }
-                    - { $zoom: { min: 15 } }
+                # any:
+                #     # limit show smaller landuse areas to higher zooms
+                #     - { $zoom: [1],  area: { min: 10000000000 } }
+                #     - { $zoom: [2],  area: { min: 7000000000 } }
+                #     # some weird natural earth scale set transition
+                #     - { $zoom: [3],  area: { min: 5000000000 } }
+                #     - { $zoom: [4],  area: { min: 300000000 } }
+                #     - { $zoom: [5],  area: { min: 50000000 } }
+                #     - { $zoom: [6],  area: { min: 50000000 } }
+                #     - { $zoom: [7],  area: { min: 50000000 } }
+                #     - { $zoom: [8],  area: { min: 50000000 } }
+                #     - { $zoom: [9],  area: { min: 15000000 } }
+                #     - { $zoom: [10], area: { min: 4000000 } }
+                #     - { $zoom: [11], area: { min: 1000000 } }
+                #     - { $zoom: [12], area: { min: 250000 } }
+                #     - { $zoom: [13], area: { min: 150000 } }
+                #     - { $zoom: [14], area: { min: 40000 } }
+                #     - { $zoom: { min: 15 } }
             draw:
                 polygons:
-                    color: [0.700,0.700,0.700]
+                    style: waves-stripes-noise
+                    # color: [0.151,0.369,0.840]
 
         other-water-areas:
             filter: { not: { kind: [ocean, lake, water, reservoir] }, $zoom: { min: 11 }, area: { min: 100 } }
             draw:
                 polygons:
-                    color: [0.700,0.700,0.700]
+                    style: waves-stripes-noise
+                    # color: [0.151,0.369,0.840]
 
     roads:
         data: { source: mapzen, layer: roads }
+        enabled: false
         draw:
             lines:
                 width: 1px
@@ -311,6 +311,7 @@ layers:
 
     landuse:
         data: { source: mapzen }
+        enabled: false
         draw:
             polygons:
                 order: global.feature_order
@@ -407,6 +408,7 @@ layers:
 
     buildings:
         data: { source: mapzen, layer: buildings }
+        enabled: false
         filter:
             not: { location: underground }
         draw:
@@ -450,6 +452,7 @@ layers:
 
     places:
         data: { source: mapzen, layer: places }
+        enabled: false
         filter:
             name: true
         draw:
@@ -641,6 +644,67 @@ styles:
                     vec2 pos = getScreenNonStretchCoords();
                     pos.y += sin(pos.x*30.)*.01;
                     color.rgb = mix(color.rgb, vec3(0.950),stripes(pos*70.,.2));
+
+    # waves-stripes-noise:
+    #     base: polygons
+    #     mix: [space-tile, generative-noise, patterns-stripes, pattern-noise]
+    #     shaders:
+    #         defines:
+    #             STRIPES_WIDTH: .4
+    #             STRIPES_ALPHA: 1.0
+    #             STRIPES_SCALE: 35.
+    #             STRIPES_ANGLE: 3.14159265
+    #         uniforms:
+    #             u_noise_freq: 0.002
+    #             u_noise_scale: 0.15
+    #             u_background_color: [0.000,0.899,0.930]
+    #         blocks:
+    #             color: |
+    #                 float a = stripes(patternNoiseCoords() * STRIPES_SCALE,STRIPES_WIDTH,STRIPES_ANGLE);
+    #                 color.rgb = mix(color.rgb, u_background_color, a);
+
+    earth-stripes-noise:
+        base: polygons
+        mix: [space-tile, generative-noise, patterns-stripes, pattern-noise]
+        shaders:
+            defines:
+                STRIPES_WIDTH: .25
+                STRIPES_ALPHA: 1.0
+                STRIPES_SCALE: 6.
+                STRIPES_ANGLE: 3.14159265
+            uniforms:
+                u_noise_freq: 0.003
+                u_noise_scale: 0.5
+                u_background_color: [0.500,0.495,0.497]
+            blocks:
+                color: |
+                    float a = stripes(patternNoiseCoords() * STRIPES_SCALE,
+                                    STRIPES_WIDTH,
+                                    STRIPES_ANGLE);
+                    color.rgb = mix(color.rgb, u_background_color, a);
+
+    waves-stripes-noise:
+        base: polygons
+        mix: [space-tile, generative-noise, patterns-stripes, pattern-noise]
+        shaders:
+            defines:
+                STRIPES_WIDTH: .5
+                STRIPES_WIDTH2: .5
+                STRIPES_ALPHA: 1.0
+                STRIPES_SCALE: 16.
+                STRIPES_SCALE2: 8.
+                STRIPES_ANGLE: 3.14159265
+            uniforms:
+                u_noise_freq: 0.002
+                u_noise_scale: 0.09
+                u_background_color: [0.185,0.079,0.610]
+                # u_background_color2: [0.248,0.064,1.000]
+                u_background_color2: [0.123,0.116,0.340]
+            blocks:
+                color: |
+                    float a = stripes(patternNoiseCoords() * STRIPES_SCALE,STRIPES_WIDTH,STRIPES_ANGLE);
+                    float b = stripes(patternNoiseCoords() * STRIPES_SCALE2,STRIPES_WIDTH2,STRIPES_ANGLE);
+                    color.rgb = mix(mix(color.rgb, u_background_color2, b), u_background_color, a);
 
     waves-noise:
         base: polygons
